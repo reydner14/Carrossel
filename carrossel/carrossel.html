@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      *,
+      *::after,
+      *::before {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: orange;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .wrapper {
+        position: relative;
+        width: 460px;
+        height: 343px;
+      }
+      img {
+        /* tamanho original das fotos
+        width: 640px;
+        height: 426px; */
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.2);
+      }
+      .arrowBtns {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        z-index: 1;
+      }
+      .arrowBtn {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        width: 40px;
+        height: 30%;
+        font-size: 30px;
+        border: none;
+        border-radius: 0px 15px 15px 0;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .arrowR {
+        border-radius: 15px 0 0 15px;
+      }
+      .arrowBtn:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+      .btns {
+        position: absolute;
+        width: 100%;
+        bottom: 5%;
+        display: flex;
+        justify-content: center;
+      }
+      .btn {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: transparent;
+        border: 2px solid white;
+        margin-right: 5px;
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+        transition: 0.3s;
+        z-index: 2;
+      }
+      .btn:hover {
+        background-color: rgba(255, 255, 255, 0.5);
+      }
+      /* classes for javascript */
+      .active {
+        background-color: white;
+      }
+      .active:hover {
+        background-color: white;
+      }
+    </style>
+    <title>Carrossel</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <img src="" alt="Carrossel" />
+      <div class="arrowBtns">
+        <button class="arrowL arrowBtn">&#8678;</button>
+        <button class="arrowR arrowBtn">&#8680;</button>
+      </div>
+      <div class="btns"></div>
+    </div>
+    <script>
+      /* referenciando o CONTAINER dos botões circulares, os botões de seta e o elemento imagem */
+      const btnContainer = document.querySelector(".btns");
+      const arrowBtnContainer = document.querySelector(".arrowBtns");
+      const arrowL = document.querySelector(".arrowL");
+      const arrowR = document.querySelector(".arrowR");
+      const img = document.querySelector("img");
+
+      // definindo um array com a url das imagens que serão cicladas com as setas ou selecionadas diretamente com os botões circulares
+      const images = [
+        "foto1.jpg",
+        "foto2.jpg",
+        "foto3.jpg",
+        "foto4.jpg",
+        "foto5.jpg",
+      ];
+      img.src = images[0]; // definindo a url da imagem com o primeiro elemento do array
+      let intervalo = setInterval(() => {
+        // intervalo para passar pelas imagens com o tempo
+        if (count >= images.length - 1) {
+          count = 0;
+        } else if (count < 0) {
+          count = images.length - 1;
+        } else {
+          count++;
+        }
+        backgroundCheck();
+        botoes[count].classList.add("active");
+        updateImg();
+      }, 2500);
+
+      /* uma variável que vai equivaler ao índice dos elementos no array de imagens.
+       Também usada para ciclar o carrossel com os botões de seta. */
+      let count = 0;
+      for (let i = 0; i < images.length; i++) {
+        // um loop para criar um botão circular para cada elemento no array de imagens
+        const btn = document.createElement("button");
+        btn.classList.add("btn"); // adicionando a classe com os estilos (CSS)
+        btn.addEventListener("click", () => {
+          backgroundCheck(); // !definição na função!
+          btn.classList.add("active"); // adicionando o plano de fundo opaco para o botão clicado
+          img.src = images[i];
+          count = i; // count é dado o valor de i para que as setas retomem a contagem a partir do botão clicado
+          clearInterval(intervalo); // pausando o intervalo para que não avance durante a navegação do usuário
+          console.log(count);
+        });
+        btnContainer.appendChild(btn);
+      }
+      const botoes = document.querySelectorAll(".btn"); // referenciando um array com todos os botões criados no loop acima
+      botoes[0].classList.add("active"); // definindo o primeiro botão como ativo para que fique opaco
+
+      arrowL.addEventListener("click", () => {
+        // lógica para que a contagem reinicie quando chegar no PRIMEIRO elemento do array de imagens
+        count = count <= 0 ? images.length - 1 : count - 1; // DECREMENTA a contagem caso não seja a primeira imagem
+        updateImg(); // !definição na função!
+        backgroundCheck(); // !definição na função!
+        botoes[count].classList.add("active"); // adicionando o plano de fundo opaco para o botão clicado
+        console.log(count);
+      });
+      arrowR.addEventListener("click", () => {
+        // lógica para que a contagem reinicie quando chegar no ÚLTIMO elemento do array de imagens
+        count = count >= images.length - 1 ? 0 : count + 1; // INCREMENTA a contagem caso não seja a última imagem
+        updateImg(); // !definição na função!
+        backgroundCheck(); // !definição na função!
+        botoes[count].classList.add("active"); // adicionando o plano de fundo opaco para o botão clicado
+        console.log(count);
+      });
+      arrowBtnContainer.addEventListener("mouseover", () =>
+        clearInterval(intervalo)
+      ); // pausa o intervalo ao pairar sobre a imagem
+      arrowBtnContainer.addEventListener("mouseout", retomarIntervalo); // reinicia o intervalo ao tirar o cursor da imagem
+
+      function updateImg() {
+        // atualiza a url da imagem
+        img.src = images[count];
+      }
+      function backgroundCheck() {
+        // checando todos os botões circulares e removendo o plano de fundo opaco
+        botoes.forEach((botao) => {
+          if (botao.classList.contains("active")) {
+            botao.classList.remove("active");
+          }
+        });
+      }
+      function retomarIntervalo() {
+        // redefinindo o mesmo intervalo que anteriormente
+        intervalo = setInterval(() => {
+          if (count >= images.length - 1) {
+            count = 0;
+          } else if (count < 0) {
+            count = images.length - 1;
+          } else {
+            count++;
+          }
+          backgroundCheck();
+          botoes[count].classList.add("active");
+          updateImg();
+        }, 2500);
+      }
+      // Feito por: Sammuel Reydner
+    </script>
+  </body>
+</html>
